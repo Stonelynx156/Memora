@@ -16,18 +16,17 @@ def load_index() -> List[str]:
     with INDEX_FILE.open("r", encoding="utf-8") as f:
         return json.load(f)
     
-def save_index(index: Dict) -> None:
-    with INDEX_FILE.open("w", encoding="utf-8") as f:
-        json.dump(index, f, indent=2)
+def deck_file_path(name: str) -> Path:
+    #removes whitespaces and turn to lowercase for filename
+    safe = "".join(c if c.isalnum()else "_" for c in name)
+    deck_file = DATA_DIR / f"{safe}.json"
 
 #check deck file exists, if not create it
-def _ensure_deck_file(deck_name: str):
-    #removes whitespaces and turn to lowercase for filename
-    safe = "".join(c if c.isalnum()else "_" for c in deck_name)
-    deck_file = DATA_DIR / f"{safe}.json"
-    if not deck_file.exists():
-        deck_file.write_text(json.dumps({"cards": []}, indent=2))
-    return deck_file
+def _ensure_deck_file(name: str):
+    path = deck_file_path(name)
+    if not path.exists():
+        path.write_text(json.dumps({"cards": []}, indent=2))
+    
 
 def create_deck(name: str) -> None:
     _ensure_index()
@@ -37,5 +36,18 @@ def create_deck(name: str) -> None:
     #if deck names not in index, add it
     if name not in decks:
         decks.append(name)
-        save_index(index)
+        with INDEX_FILE.open("w", encoding="utf-8") as f:
+            json.dump(index, f, indent=2)
     _ensure_deck_file(name)
+
+def load_decks(name: str) -> List[Dict]:
+    _ensure_deck_file(name)
+    with deck_file_path(name).open("r", encoding="utf-8")as f:
+        data = json.load(f)
+    return data.get("cards", [])
+
+def save_decks(name: str, cards: List[Dict]) -> None:
+    _ensure_deck_file(name)
+    path = deck_file_path(name)
+    with path.open("w", encoding="utf-8") as f:
+        json.dump({"cards": cards}, f, indent=2)

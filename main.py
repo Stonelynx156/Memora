@@ -1,1 +1,3 @@
-from ui import mainmenu
+import ui
+
+ui.show_menu()

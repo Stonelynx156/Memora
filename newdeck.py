@@ -4,7 +4,7 @@ import msvcrt
 import shutil
 import panduan
 import sys
-from deck import create_deck
+from deck import create_deck, load_index
 
 """Material & Needs"""
 #Import Warna
@@ -107,6 +107,7 @@ def new_deck():
 
     # gunakan prompt sederhana (tidak di-center supaya input terlihat normal)
     deck_name, canceled = input_with_esc(center_text("Masukkan nama deck baru: "))
+    existing_decks = sorted(load_index().get("decks", []))
     if canceled:
         # kembali ke pemanggil (main menu) tanpa memanggil show_menu di sini
         return None
@@ -114,6 +115,13 @@ def new_deck():
     if deck_name is None or deck_name.strip() == "":
         set_color(BRIGHT | RED)
         print(center_text("Nama deck tidak boleh kosong!"))
+        set_color(WHITE)
+        wait_for_enter(center_text("Tekan Enter untuk kembali ke menu..."))
+        return None
+    if deck_name in existing_decks:
+        set_color(BRIGHT | RED)
+        print()
+        print(center_text(f"Deck dengan nama '{deck_name}' sudah ada!"))
         set_color(WHITE)
         wait_for_enter(center_text("Tekan Enter untuk kembali ke menu..."))
         return None

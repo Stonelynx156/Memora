@@ -7,6 +7,7 @@ import newdeck
 import importdeck
 import managedeck
 import time
+from deck import load_index
 
 """Material & Needs"""
 #Import Warna
@@ -91,11 +92,7 @@ def wait_for_enter(prompt=None):
         # selain itu, abaikan dan terus tunggu
 
 #Get Available Deck
-avail_decks = [
-    "English to Indonesian",
-    "Matematika Dasar",
-    "Sejarah Dasar",
-]
+avail_decks = sorted(load_index().get("decks", []))
 
 #Bottom Menu
 menu_options = [

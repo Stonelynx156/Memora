@@ -127,10 +127,11 @@ def new_deck():
         return None
 
     # Di sini Anda dapat menambahkan logika menyimpan deck ke file / daftar
+    create_deck(deck_name)
     set_color(BRIGHT | CYAN)
     print()
     print(center_text(f"Deck '{deck_name}' berhasil dibuat!"))
     set_color(WHITE)
     print()
     wait_for_enter(center_text("Tekan Enter untuk kembali ke menu..."))
-    create_deck(deck_name)
+    

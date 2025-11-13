@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 from typing import Dict, List
+import os
 
 DATA_DIR = Path(__file__).parent / "data"
 DATA_DIR.mkdir(exist_ok=True)
@@ -19,10 +20,10 @@ def load_index() -> List[str]:
 def deck_file_path(name: str) -> Path:
     #removes whitespaces and turn to lowercase for filename
     safe = "".join(c if c.isalnum()else "_" for c in name)
-    deck_file = DATA_DIR / f"{safe}.json"
+    return DATA_DIR / f"{safe}.json"
 
 #check deck file exists, if not create it
-def _ensure_deck_file(name: str):
+def _ensure_deck_file(name: str) -> None:
     path = deck_file_path(name)
     if not path.exists():
         path.write_text(json.dumps({"cards": []}, indent=2))

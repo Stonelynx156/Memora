@@ -63,3 +63,20 @@ def update_schedule(card: Card, quality: int) -> None:
             card.interval = card.interval * card.ease_factor * 1.3
     card.ease_factor = max(1.3, card.ease_factor)
     card.interval = round(card.interval)
+
+def learning_steps(card: Card, quality: int) -> None:
+    now = _now
+    step = 1
+    while step < 3:
+        if quality < 0 or quality > 3:
+            raise ValueError("qualitty must be between 0 to 3")
+        if quality == 0:
+            step = 1
+        if quality == 1:
+            step += 0.5
+        if quality == 2:
+            step += 1
+        if quality == 3:
+            step = 3
+        
+    return 

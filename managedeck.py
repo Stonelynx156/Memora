@@ -4,7 +4,7 @@ import msvcrt
 import shutil
 import json
 import time
-from deck import delete_deck
+
 
 """Material & Needs"""
 #Import Warna
@@ -408,7 +408,6 @@ def manage_deck(avail_decks):
                             print()
                             print(center_text("Deck telah dihapus."))
                             #hapus deck disini
-                            delete_deck(deck_name)
                             wait_for_enter(center_text("Tekan Enter untuk kembali..."))
                             break  # kembali ke daftar deck setelah hapus
                         else:

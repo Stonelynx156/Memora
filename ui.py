@@ -92,7 +92,7 @@ def wait_for_enter(prompt=None):
         # selain itu, abaikan dan terus tunggu
 
 #Get Available Deck
-avail_decks = sorted(load_index().get("decks", []))
+
 
 #Bottom Menu
 menu_options = [
@@ -131,6 +131,7 @@ def ensure_terminal_ok(min_cols=84, min_rows=20, enforce=False):
 def main_menu(selected_deck, selected_option, deck_mode):
     clear()
     cols, rows = shutil.get_terminal_size()
+    avail_decks = sorted(load_index().get("decks", []))
 
     # title 
     header = "================================== Care Card V.1 =================================="
@@ -208,6 +209,7 @@ def main_menu(selected_deck, selected_option, deck_mode):
 
 """Fungsi utama untuk menjalankan menu."""
 def show_menu():
+    avail_decks = sorted(load_index().get("decks", []))
     selected_deck = 0
     selected_option = 0
     deck_mode = True  # True = navigasi di deck, False = navigasi di menu

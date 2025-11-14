@@ -4,6 +4,7 @@ import msvcrt
 import shutil
 import json
 import time
+from cards import Card, update_schedule, learning_steps, add_card
 
 
 """Material & Needs"""
@@ -158,6 +159,7 @@ def newcards(deck_name):
         set_color(WHITE)
         wait_for_enter(center_text("Tekan Enter untuk kembali..."))
         return
+    add_card(front_cards, back_cards, deck_name)
     print()
     wait_for_enter(center_text("Tekan Enter untuk kembali..."))
 

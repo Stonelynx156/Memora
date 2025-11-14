@@ -41,13 +41,13 @@ def create_deck(name: str) -> None:
             json.dump(index, f, indent=2)
     _ensure_deck_file(name)
 
-def load_decks(name: str) -> List[Dict]:
+def load_deck(name: str) -> List[Dict]:
     _ensure_deck_file(name)
     with deck_file_path(name).open("r", encoding="utf-8")as f:
         data = json.load(f)
     return data.get("cards", [])
 
-def save_decks(name: str, cards: List[Dict]) -> None:
+def save_deck(name: str, cards: List[Dict]) -> None:
     _ensure_deck_file(name)
     path = deck_file_path(name)
     with path.open("w", encoding="utf-8") as f:

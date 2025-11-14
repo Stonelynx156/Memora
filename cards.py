@@ -2,6 +2,7 @@ import uuid
 from dataclasses import dataclass, asdict
 from datetime import datetime, timezone,timedelta
 from typing import Dict
+from deck import load_deck, save_deck
 
 def _now() -> datetime:
     return datetime.now(timezone.utc)
@@ -23,7 +24,7 @@ class Card:
     step : int = 1
     due : str = _now().isoformat()
 
-    @dataclass
+    @classmethod
     def from_dict(self, raw:Dict[str, object]) -> "Card":
         return self(**raw)
     
@@ -80,3 +81,11 @@ def learning_steps(card: Card, quality: int) -> None:
             step = 3
             card.interval = 1
     card.interval = now + datetime(minute=steps[step])
+
+def add_card(front, back, deck_name: str):
+    deck = load_deck(deck_name)
+    f = front
+    b = back
+    card = Card.new(front = f, back = b)
+    deck.append(card.to_dict())
+    save_deck(deck_name, deck)

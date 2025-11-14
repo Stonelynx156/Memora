@@ -52,3 +52,12 @@ def save_deck(name: str, cards: List[Dict]) -> None:
     path = deck_file_path(name)
     with path.open("w", encoding="utf-8") as f:
         json.dump({"cards": cards}, f, indent=2)
+
+def delete_deck(name: str) -> None:
+    _ensure_deck_file(name)
+    list_deck = load_index()
+    os.remove(deck_file_path(name))
+    if name in list_deck["decks"]:
+        list_deck["decks"].remove(name)
+    with INDEX_FILE.open("w", encoding="utf-8") as f:
+            json.dump(list_deck, f, indent=2)

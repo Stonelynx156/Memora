@@ -4,6 +4,10 @@ from datetime import datetime, timezone,timedelta
 from typing import Dict
 from deck import load_deck, save_deck
 import heapq
+import itertools
+
+
+_seq = itertools.count
 
 def _now() -> datetime:
     return datetime.now(timezone.utc)
@@ -13,7 +17,7 @@ def human_date(iso_ts: str) -> str:
         dt = datetime.fromisoformat(iso_ts)
     except ValueError:
         return iso_ts
-    return dt.timezone().strftime("%Y-%m-%d %H:%M:%S")
+    return dt.astimezone().strftime("%Y-%m-%d %H:%M:%S")
 
 @dataclass
 class Card:
@@ -87,6 +91,7 @@ def learning_steps(card: Card, quality: int) -> None:
             step = 3
             card.interval = 1
     card.due = now + steps[step]
+    card.first_time = False
 
 #add new card into decks
 def add_card(front, back, deck_name: str):
@@ -104,15 +109,15 @@ def study_deck(deck_name: str, limit, quality):
     for c in cards:
         due_dt = datetime.fromisoformat(c.due)
         if due_dt <= now:
-            heapq.heappush(session_cards, (due_dt, c))
+            heapq.heappush(session_cards, (due_dt, next(_seq),c))
 
     reviewed = 0
     while session_cards and (limit is None or reviewed < limit):
-        _, card = heapq.heappop(session_cards)
+        _, _, card = heapq.heappop(session_cards)
         update_schedule(card, quality)
         if card.step < 3:
             new_due_dt = datetime.fromisoformat(card.due)
-            heapq.heappush(session_cards, (new_due_dt, card))
+            heapq.heappush(session_cards, (new_due_dt,next(_seq), card))
         elif card.step == 3:
             reviewed +=1
         for idx, stored in enumerate(cards_raw):

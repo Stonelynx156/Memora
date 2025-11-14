@@ -12,10 +12,13 @@ def _ensure_index():
     if not INDEX_FILE.exists():
         INDEX_FILE.write_text(json.dumps({"decks": []}, indent=2))
 
-def load_index() -> List[str]:
+def load_index() -> Dict[str,List[str]]:
     _ensure_index()
     with INDEX_FILE.open("r", encoding="utf-8") as f:
         return json.load(f)
+def save_index(index: Dict[str, List[str]]) -> None:
+    with INDEX_FILE.open("w", encoding="utf-8") as f:
+        json.dump(index, f, indent=2)
     
 def deck_file_path(name: str) -> Path:
     #removes whitespaces and turn to lowercase for filename
@@ -37,8 +40,7 @@ def create_deck(name: str) -> None:
     #if deck names not in index, add it
     if name not in decks:
         decks.append(name)
-        with INDEX_FILE.open("w", encoding="utf-8") as f:
-            json.dump(index, f, indent=2)
+        save_index(index)
     _ensure_deck_file(name)
 
 def load_deck(name: str) -> List[Dict]:
@@ -59,5 +61,15 @@ def delete_deck(name: str) -> None:
     os.remove(deck_file_path(name))
     if name in list_deck["decks"]:
         list_deck["decks"].remove(name)
-    with INDEX_FILE.open("w", encoding="utf-8") as f:
-            json.dump(list_deck, f, indent=2)
+    save_index(list_deck)
+
+def rename_deck(old_name: str, new_name: str) -> None:
+    _ensure_deck_file(old_name)
+    list_decks = load_index()
+    old = deck_file_path(old_name)
+    new = DATA_DIR / f"{new_name}.json"
+    if old_name in list_decks["decks"]:
+        index = list_decks["decks"].index(old_name)
+        list_decks["decks"][index] = new_name
+    os.rename(old, new)
+    save_index(list_decks)

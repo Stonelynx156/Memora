@@ -5,11 +5,9 @@ import json
 from tkinter import Tk, filedialog
 
 from console import (
-    clear, 
     set_color,
     center_text,
     wait_for_enter,
-    read_key,
     )
 
 EXIT_TOKEN = "__EXIT__"
@@ -31,8 +29,6 @@ h = ctypes.windll.kernel32.GetStdHandle(STD_OUTPUT_HANDLE)
 
 """Import Deck Baru"""
 def import_deck():
-    prev_size = get_terminal_size()
-
     while True:
         set_color(BRIGHT | CYAN)
         print(center_text("================================= Import Deck Baru ================================="))

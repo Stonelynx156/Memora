@@ -1,8 +1,10 @@
-import os
 import ctypes
-import msvcrt
-import shutil
-import time
+
+from console import (
+    set_color,
+    center_text,
+    wait_for_enter,
+    )
 
 """Material & Needs"""
 #Import Warna
@@ -18,77 +20,9 @@ BRIGHT = 0x08
 
 STD_OUTPUT_HANDLE = -11
 h = ctypes.windll.kernel32.GetStdHandle(STD_OUTPUT_HANDLE)
-
-"""Fungsi Penting"""
-#Import Size Terminal
-cols, rows = shutil.get_terminal_size()
-
-#Clear Tampilan
-def clear():
-    os.system('cls')
-
-#Ganti Warna
-def set_color(color):
-    ctypes.windll.kernel32.SetConsoleTextAttribute(h, color)
-
-#Align Center
-def center_text(text):
-    cols, _ = shutil.get_terminal_size()
-    x = (cols - len(text)) // 2
-    return " " * x + text
-
-# Tunggu hanya tombol Enter (isolasi input)
-def wait_for_enter(prompt=None):
-    if prompt:
-        print(prompt)
-    # buang semua input yang tertinggal
-    while msvcrt.kbhit():
-        try:
-            msvcrt.getch()
-        except OSError:
-            break
-    # tunggu hingga Enter (CR) ditekan
-    while True:
-        key = msvcrt.getch()
-        if key == b'\r':  # Enter
-            break
-        # jika key adalah prefix untuk key spesial, buang byte berikutnya
-        if key in (b'\x00', b'\xe0'):
-            try:
-                msvcrt.getch()
-            except OSError:
-                pass
-            continue
-        # selain itu, abaikan dan terus tunggu
-
-#check terminal size   
-def check_terminal_size(min_cols=84, min_rows=20, enforce=False):
-    """Periksa ukuran terminal; tampilkan peringatan bila kurang."""
-    cols, rows = shutil.get_terminal_size()
-    if cols >= min_cols and rows >= min_rows:
-        return True
-    
-    clear()
-    set_color(RED)
-    print(center_text(f"Ukuran terminal terlalu kecil: {cols}x{rows} (minimal {min_cols}x{min_rows})"))
-    set_color(YELLOW)
-    print(center_text("Beberapa tampilan mungkin terpotong. Perbesar untuk melanjutkan penggunaan."))
-    set_color(WHITE)
-    wait_for_enter(center_text("Tekan Enter untuk mencoba lagi..."))
-    clear()
-    return False
-
-def ensure_terminal_ok(min_cols=84, min_rows=20, enforce=False):
-    while True:
-        if check_terminal_size(min_cols=min_cols, min_rows=min_rows, enforce=enforce):
-            return True
-        else:
-            clear()
-        time.sleep(0.05)
     
 """Panduan Penggunaan"""
 def panduan_penggunaan():
-    ensure_terminal_ok(min_cols=84, min_rows=20, enforce=False)
     set_color(BRIGHT | MAGENTA)
     print(center_text("=========================== Panduan Penggunaan Care Card ==========================="))
     print()

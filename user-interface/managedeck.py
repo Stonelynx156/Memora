@@ -5,7 +5,7 @@ import shutil
 import json
 import time
 
-from deck import delete_deck, rename_deck
+from deck import delete_deck, rename_deck, load_index, load_deck
 from cards import Card, update_schedule, learning_steps, add_card
 from console import (
     clear,
@@ -93,11 +93,12 @@ def card_list(deck_name):
     set_color(BRIGHT | CYAN)
     print(center_text(f"=== Daftar Kartu di: {deck_name} ==="))
     set_color(WHITE)
+    cards_raw = load_deck(deck_name)
     print()
     print("     " + "ID Kartu   | Pertanyaan (front) | Jawaban (back) ")
     print("     " + "-----------------------------------------------")
-    print("     " + "1          | Apa itu Python?   | Bahasa pemrograman tingkat tinggi.")
-    print("     " + "2          | Apa itu JSON?     | Format data ringan untuk pertukaran data.")
+    for c in cards_raw:
+        print("     " + f"{c.get("id")} | {c.get("front")} | {c.get("back")}")
     print()
     wait_for_enter(center_text("Tekan Enter untuk kembali..."))
 
@@ -233,6 +234,7 @@ def manage_deck(avail_decks):
     prev_size = get_terminal_size()
 
     while True:
+        avail_decks = sorted(load_index().get("decks", []))
         clear()
         set_color(BRIGHT | MAGENTA)
         print(center_text("================================== Manajemen Deck =================================="))

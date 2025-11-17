@@ -6,7 +6,7 @@ import json
 import time
 
 from deck import delete_deck, rename_deck, load_index, load_deck
-from cards import Card, update_schedule, learning_steps, add_card
+from cards import Card, update_schedule, learning_steps, add_card, reset_due
 from console import (
     clear,
     set_color,
@@ -193,6 +193,7 @@ def reset_times(deck_name):
     print()
     confirm = input("Apakah Anda yakin ingin mereset waktu semua kartu? (y/n): ")
     if confirm.lower() == 'y':
+        reset_due(deck_name)
         print()
         print(center_text("Waktu semua kartu telah direset."))
     else:

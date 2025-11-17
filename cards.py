@@ -38,11 +38,7 @@ class Card:
         return self(**raw)
     
     def to_dict(self) -> Dict[str, object]:
-        d = asdict(self)
-        # ensure due is a string
-        if isinstance(d["due"], datetime):
-            d["due"] = d["due"].isoformat()
-        return d
+        return asdict(self)
     
     @classmethod
     def new(self, front: str, back: str) -> "Card":
@@ -84,21 +80,20 @@ def update_schedule(card: Card, quality: int) -> None:
 def learning_steps(card: Card, quality: int) -> None:
 
     now = _now()
-    step = card.step
-    if step < len(steps):
+    if card.step < len(steps):
         if quality < 0 or quality > 3:
             raise ValueError("qualitty must be between 0 to 3")
         if quality == 0:
-            step = 1
+            card.step = 1
         elif quality == 1:
-            step += 1
+            card.step += 1
         elif quality == 2:
-            step += 2
+            card.step += 2
         elif quality == 3:
-            step = 3
+            card.step = 3
             card.interval = 1
-        card.step = step
-    card.due = now + steps[step]
+        
+    card.due = now + steps[card.step]
     card.first_time = False
 
 #add new card into decks
@@ -140,3 +135,12 @@ def study_card(deck_name, session_cards, limit, quality):
                 break
         save_deck(deck_name, cards_raw)
         
+def reset_due(deck_name: str):
+    raw_cards = load_deck(deck_name)
+    cards = [Card.from_dict(c) for c in raw_cards]
+    now = _now()
+    for c in cards:
+        c.due = now.isoformat()
+        c.first_time = True
+    cards = [Card.to_dict(c) for c in cards]
+    save_deck(deck_name, cards)

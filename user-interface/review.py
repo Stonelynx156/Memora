@@ -4,8 +4,8 @@ import cards
 from datetime import datetime,timezone
 import heapq
 import itertools
-from deck import load_deck
-from cards import Card, study_card, card_queue
+from deck import load_deck, save_deck
+from cards import Card, study_card, card_queue, learning_steps, update_schedule
 
 from console import (
     clear, 
@@ -112,14 +112,15 @@ def display_answer(deck_name, question, answer):
 def review_deck(deck_name):
     prev_size = get_terminal_size()
     show_answer = False
+    cards_raw = load_deck(deck_name)
+    counter = itertools.count()
     queue = card_queue(deck_name)
-    first_card = queue[0][2]
-    q = first_card.front
-    a = first_card.back
     # Tampilkan pertanyaan pertama kali
     
     while queue:
         _, _, card = heapq.heappop(queue)
+        q = card.front
+        a = card.back
         display_question(deck_name, q)
         show_answer = False
         while True:
@@ -153,7 +154,18 @@ def review_deck(deck_name):
                     if char in ['1', '2', '3', '4']:
                         # Handle rating (bisa ditambahkan logika update card di sini)
                         quality = int(char) - 1
-                        study_card(deck_name, queue, None, quality)
+                        update_schedule(card, quality)
+                        if card.step <= 3:
+                            due_dt = card.due if isinstance(card.due, datetime) else datetime.fromisoformat(card.due)
+                            heapq.heappush(queue, (due_dt,next(counter), card))
+                            print(card)
+                        elif card.step > 3:
+                            reviewed +=1
+                        for idx, stored in enumerate(cards_raw):
+                            if stored["id"] == card.id:
+                                cards_raw[idx] = card.to_dict()
+                                break
+                        save_deck(deck_name, cards_raw)
                         # Untuk sekarang, kembali ke pertanyaan atau lanjut ke kartu berikutnya
                         break
 

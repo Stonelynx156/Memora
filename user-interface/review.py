@@ -1,0 +1,200 @@
+import ctypes
+import deck
+import cards
+from datetime import datetime
+import heapq
+import itertools
+
+from console import (
+    clear, 
+    set_color,
+    center_text,
+    read_key,
+    wait_for_enter,
+    get_terminal_size,
+    wait_for_key_with_resize,
+    EXIT_TOKEN)
+
+BLACK = 0x00
+BLUE = 0x01
+GREEN = 0x02
+RED = 0x04
+WHITE = 0x07
+YELLOW = RED | GREEN
+CYAN = GREEN | BLUE
+MAGENTA = RED | BLUE
+BRIGHT = 0x08
+
+STD_OUTPUT_HANDLE = -11
+h = ctypes.windll.kernel32.GetStdHandle(STD_OUTPUT_HANDLE)
+
+quality_options = [
+    "[1] Again",
+    "[2] Hard",
+    "[3] Good",
+    "[4] Easy"
+]
+
+question = "Pertanyaan Disini"
+answer = "Jawaban Disini"
+
+def print_spacer_before_bottom_options(lines_used, bottom_section_height):
+    """
+    Menghitung dan mencetak spacer untuk menempatkan opsi di bagian bawah terminal.
+    
+    Args:
+        lines_used: Jumlah baris yang sudah digunakan di atas
+        bottom_section_height: Tinggi bagian bawah (opsi + instruksi)
+    """
+    _, rows = get_terminal_size()
+    blanks_needed = max(0, rows - lines_used - bottom_section_height)
+    
+    for _ in range(blanks_needed):
+        print()
+
+def display_question(deck_name, question):
+    clear()
+    set_color(BRIGHT | BLUE)
+    print(center_text(f"=== {deck_name} ==="))
+    set_color(WHITE)
+    print()
+
+    set_color(BRIGHT | GREEN)
+    print(center_text("PERTANYAAN:"))
+    set_color(WHITE)
+    print(center_text(question))
+    print("\n" * 5)
+    
+    # Instruksi
+    set_color(BRIGHT | YELLOW)
+    instruction = "===== Tekan Spasi / Enter untuk melihat jawaban ====="
+    print(center_text(instruction))
+    set_color(WHITE)
+
+def display_answer(deck_name, question, answer):
+    clear()
+    set_color(BRIGHT | BLUE)
+    print(center_text(f"=== {deck_name} ==="))
+    set_color(WHITE)
+    print()
+
+    set_color(BRIGHT | GREEN)
+    print(center_text("PERTANYAAN:"))
+    set_color(WHITE)
+    print(center_text(question))
+    print("\n" * 4)
+
+    set_color(BRIGHT | BLUE)
+    print(center_text("JAWABAN:"))
+    set_color(WHITE)
+    print(center_text(answer))
+    
+    lines_used = 13
+    bottom_section_height = 2  
+    
+    print_spacer_before_bottom_options(lines_used, bottom_section_height)
+
+    # Quality options di bawah
+    set_color(BRIGHT | CYAN)
+    quality_text = "  ".join(quality_options)
+    print(center_text(quality_text))
+    print()
+    
+    # Instruksi
+    set_color(BRIGHT | YELLOW)
+    instruction = "Pilih rating (1-4) untuk melanjutkan | ESC untuk kembali"
+    print(center_text(instruction))
+    set_color(WHITE)
+
+
+def review_deck(deck_name):
+    prev_size = get_terminal_size()
+    show_answer = False
+
+    # Tampilkan pertanyaan pertama kali
+    display_question(deck_name, question)
+
+    while True:
+        key, prev_size = wait_for_key_with_resize(prev_size)
+
+        if key == EXIT_TOKEN:
+            return
+        
+        if key is None:
+            # Terminal di-resize, refresh tampilan
+            if show_answer:
+                display_answer(deck_name, question, answer)
+            else:
+                display_question(deck_name, question)
+            continue
+
+        if not show_answer:
+            # State: menampilkan pertanyaan
+            if key == 'SPASI' or 'ENTER':
+                show_answer = True
+                display_answer(deck_name, question, answer)
+            elif key == 'ESC':
+                return
+        
+        else:
+            # State: menampilkan jawaban
+            if key == 'ESC':
+                return
+            elif isinstance(key, tuple) and key[0] == 'CHAR':
+                char = key[1]
+                if char in ['1', '2', '3', '4']:
+                    # Handle rating (bisa ditambahkan logika update card di sini)
+                    quality = int(char)
+                    # Untuk sekarang, kembali ke pertanyaan atau lanjut ke kartu berikutnya
+                    show_answer = False
+                    display_question(deck_name, question)
+
+
+def review_menu(deck_name):
+    """Menu review deck - menampilkan statistik dan opsi untuk mulai review"""
+    prev_size = get_terminal_size()
+
+    while True:
+        clear()
+        
+        # Header
+        set_color(BRIGHT | BLUE)
+        print(center_text(f"=== {deck_name} ==="))
+        print()
+        set_color(WHITE)
+        
+        # Statistik
+        set_color(BRIGHT | CYAN)
+        print(center_text("Statistik Deck:"))
+        print()
+        set_color(WHITE)
+        
+        print(center_text(f"Kartu Baru        : "))
+        print(center_text(f"Kartu Tinjau      : "))
+        print(center_text(f"Kartu Jatuh Tempo : "))
+        print()
+
+        set_color(BRIGHT | GREEN)
+        print(center_text("Tekan Enter untuk mulai review"))
+        set_color(YELLOW)
+        print(center_text("Tekan ESC untuk kembali"))
+        set_color(WHITE)
+        
+        key, prev_size = wait_for_key_with_resize(prev_size)
+        if key == EXIT_TOKEN:
+            return
+        if key is None:
+            continue
+
+        # Mulai sesi review
+        if key == 'ENTER':
+            review_deck(deck_name)
+        elif key == 'ESC':
+            return
+
+def show_review_deck(deck_name):
+    """Alias untuk review_menu - untuk kompatibilitas dengan ui.py"""
+    review_menu(deck_name)
+
+
+    

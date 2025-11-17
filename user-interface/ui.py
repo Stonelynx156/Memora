@@ -6,6 +6,7 @@ import guide
 import newdeck
 import importdeck
 import managedeck
+import review
 import time
 
 from deck import load_index
@@ -155,21 +156,9 @@ def show_menu():
             deck_mode = not deck_mode
         elif key == 'ENTER':
             clear()
+            deck_name = avail_decks[selected_deck]
             if deck_mode and avail_decks:
-                set_color(BRIGHT | BLUE)
-                print(center_text(f"=== {avail_decks[selected_deck]} ==="))
-                set_color(WHITE)
-                print("     " + "Kartu Baru        : ")
-                print("     " + "Kartu Tinjauan    : ")
-                print("     " + "Kartu jatuh Tempo : ")
-
-                print(center_text("Tekan Enter untuk Review Kartu atau ESC untuk kembali ke Menu Utama."))
-                if key == 'ENTER':
-                    print("Fitur Review akan segera hadir!")
-                if key == 'ESC':
-                    continue
-                wait_for_enter()
-
+                review.show_review_deck(deck_name)
             elif not deck_mode:
                 opt = menu_options[selected_option]
                 if opt == "Buat Deck Baru":

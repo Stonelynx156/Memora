@@ -55,6 +55,8 @@ def read_key():
         return 'ESC'
     if k == b'\t':
         return 'TAB'
+    if k == b' ':
+        return 'SPASI'
     try:
         return ('CHAR', k.decode('utf-8', errors='ignore'))
     except Exception:

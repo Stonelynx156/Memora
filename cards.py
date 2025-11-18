@@ -59,21 +59,23 @@ def update_schedule(card: Card, quality: int) -> None:
     if quality <0 or quality > 3:
         raise ValueError("Quality must be between 0 and 3")
     else:
-        if quality == 0 or card.step == 1:
+        if (quality == 0 or card.step < 3) and quality < 3:
             card.step = 1
             learning_steps(card, quality)
-        elif quality == 1:
-            card.ease_factor -= 0.15
-            card.interval = card.interval * 1.2
-        elif quality == 2:
-            card.interval = card.interval * card.ease_factor
         else:
-            card.ease_factor += 0.15
-            card.interval = card.interval * card.ease_factor * 1.3
-        card.ease_factor = max(1.3, card.ease_factor)
-        card.interval = round(card.interval)
-        due = now + timedelta(days=card.interval)
-        card.due = due.isoformat()
+            card.step = 4
+            due = now + timedelta(days=card.interval)
+            card.due = due.isoformat()
+            if quality == 1:
+                card.ease_factor -= 0.15
+                card.interval = card.interval * 1.2
+            elif quality == 2:
+                card.interval = card.interval * card.ease_factor
+            else:
+                card.ease_factor += 0.15
+                card.interval = card.interval * card.ease_factor * 1.3
+            card.ease_factor = max(1.3, card.ease_factor)
+            card.interval = round(card.interval)
     card.first_time = False
 
 #learning session & lapses
@@ -81,7 +83,7 @@ def learning_steps(card: Card, quality: int) -> None:
 
     now = _now()
     if card.step < len(steps):
-        if quality < 0 or quality > 3:
+        if quality < 0 or quality > 2:
             raise ValueError("qualitty must be between 0 to 3")
         if quality == 0:
             card.step = 1
@@ -113,7 +115,7 @@ def card_queue(deck_name: str):
     session_cards = []
     for c in cards:
         due_dt = datetime.fromisoformat(c.due)
-        if due_dt <= now:
+        if due_dt <= now or c.step < 4:
             heapq.heappush(session_cards, (due_dt, next(counter),c))
     return session_cards
 

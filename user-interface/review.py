@@ -117,6 +117,9 @@ def review_deck(deck_name):
     queue = card_queue(deck_name)
     # Tampilkan pertanyaan pertama kali
     
+    #if not queue:
+        #tambah print jika tidak ada kartu yang bisa direview
+    
     while queue:
         _, _, card = heapq.heappop(queue)
         q = card.front
@@ -158,11 +161,12 @@ def review_deck(deck_name):
                         if card.step <= 3:
                             due_dt = card.due if isinstance(card.due, datetime) else datetime.fromisoformat(card.due)
                             heapq.heappush(queue, (due_dt,next(counter), card))
+                            if card.step == 3:
+                                card.step += 1
                             
                         elif card.step > 3:
                             reviewed +=1
                             due = card.due
-                            card.due = due.isoformat()
                             print(card)
                         for idx, stored in enumerate(cards_raw):
                             if stored["id"] == card.id:
@@ -170,6 +174,7 @@ def review_deck(deck_name):
                         save_deck(deck_name, cards_raw)
                         break
                         # Untuk sekarang, kembali ke pertanyaan atau lanjut ke kartu berikutnya
+    queue = card_queue(deck_name)
     return
 
 
@@ -195,9 +200,9 @@ def review_menu(deck_name):
         
         print(center_text(f"Kartu Baru        : {len([Card.from_dict(c)for c in cards_raw if c.get("first_time", 0) == True])}"))
         print(center_text(f"Kartu Tinjau      : {len([Card.from_dict(c)for c in cards_raw if c.get("first_time", 0) == False 
-                                                      and datetime.fromisoformat(c["due"]) <= datetime.now(timezone.utc)])}"))
+                                                      and c.get("step", 0) < 4 ])}"))
         print(center_text(f"Kartu Jatuh Tempo : {len([Card.from_dict(c)for c in cards_raw if c.get("first_time", 0) == False
-                                                      and datetime.fromisoformat(c["due"]) > datetime.now(timezone.utc)])}"))
+                                                      and datetime.fromisoformat(c["due"]) <= datetime.now(timezone.utc) and c.get("step", 0) > 4])}"))
         print()
 
         set_color(BRIGHT | GREEN)

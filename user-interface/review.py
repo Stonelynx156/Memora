@@ -41,7 +41,7 @@ def card_status(cards_raw, x):
     new_card = len([Card.from_dict(c)for c in cards_raw if c.get("first_time", 0) == True])
     review = len([Card.from_dict(c)for c in cards_raw if c.get("first_time", 0) == False and c.get("step", 0) < 4 ])
     due = len([Card.from_dict(c)for c in cards_raw if c.get("first_time", 0) == False
-               and datetime.fromisoformat(c["due"]) <= datetime.now(timezone.utc) and c.get("step", 0) > 4])
+               and datetime.fromisoformat(c["due"]) <= datetime.now(timezone.utc) and c.get("step", 0) >= 4])
     y = [new_card, review, due]
     return y[x]
 def print_spacer_before_bottom_options(lines_used, bottom_section_height):

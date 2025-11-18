@@ -5,7 +5,7 @@ from datetime import datetime,timezone
 import heapq
 import itertools
 from deck import load_deck, save_deck
-from cards import Card, study_card, card_queue, learning_steps, update_schedule
+from cards import card_queue, update_schedule, card_status
 
 from console import (
     clear, 
@@ -36,14 +36,14 @@ quality_options = [
     "[3] Good",
     "[4] Easy"
 ]
+def get_limit(limit):
+    try:
+        value = int(input(limit))
+        return value
+    except ValueError:
+        return None
 
-def card_status(queue):
-    new_card = sum(1 for c in queue if getattr(c[2], "first_time") == True)
-    review = sum(1 for c in queue if getattr(c[2], "first_time") == False and getattr(c[2], "step")<= 4 )
-    due = sum(1 for c in queue if getattr(c[2], "first_time") == False and getattr(c[2], "step")>= 4
-              and datetime.isoformat(getattr(c[2], "due"))<= datetime.now(timezone.utc))
-    y = [new_card, review, due]
-    return y
+
 
 def print_spacer_before_bottom_options(lines_used, bottom_section_height):
     """
@@ -136,12 +136,12 @@ def display_answer(deck_name, question, answer):
     set_color(WHITE)
 
 
-def review_deck(deck_name):
+def review_deck(deck_name, new, due):
     prev_size = get_terminal_size()
     show_answer = False
     cards_raw = load_deck(deck_name)
     counter = itertools.count()
-    queue = card_queue(deck_name)
+    queue = card_queue(deck_name, new, due)
     # Tampilkan pertanyaan pertama kali
     
     if not queue:
@@ -216,13 +216,12 @@ def review_deck(deck_name):
     queue = card_queue(deck_name)
     return
 
-def review_menu(deck_name):
+def review_menu(deck_name, new, due):
     """Menu review deck - menampilkan statistik dan opsi untuk mulai review"""
     prev_size = get_terminal_size()
 
     while True:
-        cards_raw = load_deck(deck_name)
-        queue = card_queue(deck_name)
+        queue = card_queue(deck_name, new, due)
         clear()
         
         # Header
@@ -257,7 +256,7 @@ def review_menu(deck_name):
         # Mulai sesi review
         if key == 'ENTER':
             print
-            review_deck(deck_name)
+            review_deck(deck_name, new, due)
         elif key == 'ESC':
             return
 
@@ -266,9 +265,9 @@ def show_review_deck(deck_name):
     print(center_text(f"=== {deck_name} ==="))
     set_color(WHITE)
     print()
-    new_limits = input(center_text("Masukkan Limit Kartu Baru: "))
-    due_limits = input(center_text("Masukkan Limit Kartu Jatuh Tempo: "))
-    review_menu(deck_name)
+    new_limits = get_limit(center_text("Masukkan Limit Kartu Baru: ")) 
+    due_limits = get_limit(center_text("Masukkan Limit Kartu Jatuh Tempo: "))
+    review_menu(deck_name,new_limits, due_limits)
 
 
     

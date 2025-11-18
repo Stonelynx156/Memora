@@ -6,8 +6,9 @@ import json
 import time
 from tkinter import Tk, filedialog
 
+from datetime import datetime, timezone
 from deck import delete_deck, rename_deck, load_index, load_deck
-from cards import Card, update_schedule, learning_steps, add_card, reset_due
+from cards import Card, card_status, add_card, reset_due
 from console import (
     clear,
     set_color,
@@ -52,14 +53,16 @@ def deck_summary(deck_name):
     set_color(BRIGHT | CYAN)
     print(center_text(f"=== Ringkasan Deck: {deck_name} ==="))
     set_color(WHITE)
+    deck = load_deck(deck_name)
     print()
-    print("     " + "Total Kartu        : ")
-    print("     " + "Kartu baru         : ")
-    print("     " + "kartu jatuh tempo  : ")
+    print("     " + f"Total Kartu        : {len(deck)}")
+    print("     " + f"Kartu baru         : {len([Card.from_dict(c) for c in deck if c.get("first_time") == True ])}")
+    print("     " + f"kartu jatuh tempo  : {len([Card.from_dict(c) for c in deck if c.get("first_time") == False 
+                                                 and datetime.isoformat(c.get("due") <= datetime.now(timezone.utc))])}")
     print("     " + "Kartu tertunda     : ")
-    print("     " + "Jadwal Terdekat    : ")
-    print("     " + "Interval Rata Rata : ")
-    print("     " + "Internal Terbesar  : ")
+    print("     " + f"Jadwal Terdekat    : {(datetime.fromisoformat(min([Card.from_dict(c).due for c in deck]))).strftime("%d/%B/%Y - %H:%M UTC")}")
+    print("     " + f"Interval Rata Rata : {sum([Card.from_dict(c).interval for c in deck]) / len([Card.from_dict(c) for c in deck])}")
+    print("     " + f"Interval Terbesar  : {max([Card.from_dict(c).interval for c in deck])}")
     print()
     set_color(BRIGHT | YELLOW)
     wait_for_enter(center_text("Tekan Enter untuk kembali..."))

@@ -133,24 +133,13 @@ def card_queue(deck_name: str, new_limit: int = None, due_limit: int = None):
 
     return session_cards
 
-def study_card(deck_name, session_cards, limit, quality):
-    cards_raw = load_deck(deck_name)        
-    reviewed = 0
-    #if session_cards and (limit is None or reviewed < limit):
-    while session_cards and (limit is None or reviewed < limit):
-        _, _, card = heapq.heappop(session_cards)
-        update_schedule(card, quality)
-        if card.step <= 3:
-            due_dt = card.due if isinstance(card.due, datetime) else datetime.fromisoformat(card.due)
-            heapq.heappush(session_cards, (due_dt,next(counter), card))
-            print(card)
-        elif card.step > 3:
-            reviewed +=1
-        for idx, stored in enumerate(cards_raw):
-            if stored["id"] == card.id:
-                cards_raw[idx] = card.to_dict()
-                break
-        save_deck(deck_name, cards_raw)
+def card_status(queue):
+    new_card = sum(1 for c in queue if getattr(c[2], "first_time") == True)
+    review = sum(1 for c in queue if getattr(c[2], "first_time") == False and getattr(c[2], "step")<= 4 )
+    due = sum(1 for c in queue if getattr(c[2], "first_time") == False and getattr(c[2], "step")>= 4
+              and datetime.isoformat(getattr(c[2], "due"))<= datetime.now(timezone.utc))
+    y = [new_card, review, due]
+    return y
         
 def reset_due(deck_name: str):
     raw_cards = load_deck(deck_name)

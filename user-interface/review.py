@@ -37,8 +37,13 @@ quality_options = [
     "[4] Easy"
 ]
 
-question = "Pertanyaan Disini"
-answer = "Jawaban Disini"
+def card_status(cards_raw, x):
+    new_card = len([Card.from_dict(c)for c in cards_raw if c.get("first_time", 0) == True])
+    review = len([Card.from_dict(c)for c in cards_raw if c.get("first_time", 0) == False and c.get("step", 0) < 4 ])
+    due = len([Card.from_dict(c)for c in cards_raw if c.get("first_time", 0) == False
+               and datetime.fromisoformat(c["due"]) <= datetime.now(timezone.utc) and c.get("step", 0) >= 4])
+    y = [new_card, review, due]
+    return y[x]
 
 def print_spacer_before_bottom_options(lines_used, bottom_section_height):
     """
@@ -65,12 +70,35 @@ def display_question(deck_name, question):
     print(center_text("PERTANYAAN:"))
     set_color(WHITE)
     print(center_text(question))
-    print("\n" * 5)
-    
+    print("\n" * 5)    
+
     # Instruksi
     set_color(BRIGHT | YELLOW)
     instruction = "===== Tekan Spasi / Enter untuk melihat jawaban ====="
     print(center_text(instruction))
+    set_color(WHITE)
+
+    cards_raw = load_deck(deck_name)
+    new_count = card_status(cards_raw, 0)
+    review_count = card_status(cards_raw, 1)
+    due_count = card_status(cards_raw, 2)
+    
+    # Buat teks tanpa warna untuk menghitung panjang
+    status_text = f"{new_count}   {review_count}   {due_count}"
+    cols, _ = get_terminal_size()
+    padding = (cols - len(status_text)) // 2
+
+    print(" " * padding, end="")
+    set_color(BRIGHT | GREEN)
+    print(f"{new_count}", end="", flush=True)
+    set_color(WHITE)
+    print("   ", end="", flush=True)
+    set_color(BRIGHT | RED)
+    print(f"{review_count}", end="", flush=True)
+    set_color(WHITE)
+    print("   ", end="", flush=True)
+    set_color(BRIGHT | CYAN)
+    print(f"{due_count}", flush=True)
     set_color(WHITE)
 
 def display_answer(deck_name, question, answer):
@@ -154,11 +182,13 @@ def review_deck(deck_name):
 
             if not show_answer:
                 # State: menampilkan pertanyaan
-                if key == 'SPASI' or 'ENTER':
+                if key == 'SPASI' or key == 'ENTER':
                     show_answer = True
                     display_answer(deck_name, q, a)
                 elif key == 'ESC':
                     return
+                else:
+                    continue
             
             else:
                 # State: menampilkan jawaban
@@ -179,7 +209,6 @@ def review_deck(deck_name):
                         elif card.step > 3:
                             #reviewed +=1
                             due = card.due
-                            print(card)
                         for idx, stored in enumerate(cards_raw):
                             if stored["id"] == card.id:
                                 cards_raw[idx] = card.to_dict()                        
@@ -210,11 +239,9 @@ def review_menu(deck_name):
         print()
         set_color(WHITE)
         
-        print(center_text(f"Kartu Baru        : {len([Card.from_dict(c)for c in cards_raw if c.get("first_time", 0) == True])}"))
-        print(center_text(f"Kartu Tinjau      : {len([Card.from_dict(c)for c in cards_raw if c.get("first_time", 0) == False 
-                                                      and c.get("step", 0) < 4 ])}"))
-        print(center_text(f"Kartu Jatuh Tempo : {len([Card.from_dict(c)for c in cards_raw if c.get("first_time", 0) == False
-                                                      and datetime.fromisoformat(c["due"]) <= datetime.now(timezone.utc) and c.get("step", 0) > 4])}"))
+        print(center_text(f"Kartu Baru        : {card_status(cards_raw, 0)}"))
+        print(center_text(f"Kartu Tinjau      : {card_status(cards_raw, 1)}"))
+        print(center_text(f"Kartu Jatuh Tempo : {card_status(cards_raw, 2)}"))
         print()
 
         set_color(BRIGHT | GREEN)

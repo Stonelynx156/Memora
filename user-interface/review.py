@@ -15,7 +15,9 @@ from console import (
     wait_for_enter,
     get_terminal_size,
     wait_for_key_with_resize,
-    EXIT_TOKEN)
+    print_spacer_before_bottom_options,
+    EXIT_TOKEN
+    )
 
 BLACK = 0x00
 BLUE = 0x01
@@ -42,22 +44,6 @@ def get_limit(limit):
         return value
     except ValueError:
         return None
-
-
-
-def print_spacer_before_bottom_options(lines_used, bottom_section_height):
-    """
-    Menghitung dan mencetak spacer untuk menempatkan opsi di bagian bawah terminal.
-    
-    Args:
-        lines_used: Jumlah baris yang sudah digunakan di atas
-        bottom_section_height: Tinggi bagian bawah (opsi + instruksi)
-    """
-    _, rows = get_terminal_size()
-    blanks_needed = max(0, rows - lines_used - bottom_section_height)
-    
-    for _ in range(blanks_needed):
-        print()
 
 def display_question(deck_name, question, queue):
     clear()
@@ -153,7 +139,7 @@ def review_deck(deck_name, new, due):
         print()
         set_color(BRIGHT | CYAN)
         print(center_text("Selamat! Kamu sudah menyelesaikan dek ini untuk sekarang. "))
-        print(center_text("Kamu bisa mengubah maksimal kartu baru per hari di kelola dek!"))
+        print(center_text("Kamu bisa mengubah maksimal kartu baru per hari saat memilih deck!"))
         set_color(BRIGHT | YELLOW)
         print()
         wait_for_enter(center_text("Tekan Enter untuk kembali..."))
@@ -236,15 +222,25 @@ def review_menu(deck_name, new, due):
         print()
         set_color(WHITE)
         
+        set_color(BRIGHT | GREEN)
         print(center_text(f"Kartu Baru        : {card_status(queue)[0]}"))
+        set_color(BRIGHT | RED)
         print(center_text(f"Kartu Tinjau      : {card_status(queue)[1]}"))
+        set_color(BRIGHT | CYAN)
         print(center_text(f"Kartu Jatuh Tempo : {card_status(queue)[2]}"))
+        set_color(WHITE)
         print()
 
-        set_color(BRIGHT | GREEN)
+        lines_used = 7
+        bottom_section_height = 3
+        print_spacer_before_bottom_options(lines_used, bottom_section_height)
+
+        set_color(BRIGHT | YELLOW)
         print(center_text("Tekan Enter untuk mulai review"))
-        set_color(YELLOW)
+        set_color(BRIGHT | BLUE)
         print(center_text("Tekan ESC untuk kembali"))
+        set_color(BRIGHT | MAGENTA)
+        print(center_text("Tekan TAB untuk pengaturan limit"))
         set_color(WHITE)
         
         key, prev_size = wait_for_key_with_resize(prev_size)
@@ -257,17 +253,24 @@ def review_menu(deck_name, new, due):
         if key == 'ENTER':
             print
             review_deck(deck_name, new, due)
+        elif key == 'TAB':
+            clear()
+            set_color(BRIGHT | BLUE)
+            print(center_text(f"=== {deck_name} ==="))
+            set_color(WHITE)
+            print()
+            print(center_text("Kosongkan untuk default"))
+            print()
+            new = get_limit(center_text("Masukkan Limit Kartu Baru: ")) 
+            due = get_limit(center_text("Masukkan Limit Kartu Jatuh Tempo: "))
+            return review_menu(deck_name, new, due)        
         elif key == 'ESC':
             return
 
 def show_review_deck(deck_name):
-    set_color(BRIGHT | BLUE)
-    print(center_text(f"=== {deck_name} ==="))
-    set_color(WHITE)
-    print()
-    new_limits = get_limit(center_text("Masukkan Limit Kartu Baru: ")) 
-    due_limits = get_limit(center_text("Masukkan Limit Kartu Jatuh Tempo: "))
-    review_menu(deck_name,new_limits, due_limits)
+    new = 20
+    due = 20
+    review_menu(deck_name, new, due)
 
 
     

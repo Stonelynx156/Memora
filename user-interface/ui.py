@@ -17,6 +17,7 @@ from console import (
     wait_for_enter,
     get_terminal_size,
     wait_for_key_with_resize,
+    print_spacer_before_bottom_options,
     EXIT_TOKEN)
 
 BLACK = 0x00
@@ -74,11 +75,9 @@ def main_menu(selected_deck, selected_option, deck_mode):
         lines_used += 1
 
     #spacer sebelum menu bawah
-    bottom_menu_height = 6
+    bottom_section_height = 6
 
-    blanks_needed = max(0, rows - lines_used - bottom_menu_height)
-    for _ in range(blanks_needed):
-        print()
+    print_spacer_before_bottom_options(lines_used, bottom_section_height)
 
     set_color(BRIGHT | CYAN)
     option_menu_header = "Menu:"

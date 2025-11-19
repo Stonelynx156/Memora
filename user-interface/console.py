@@ -139,3 +139,10 @@ def wait_for_key_with_resize(prev_size):
             return None, (cols_now, rows_now)
 
         time.sleep(0.1)
+
+def print_spacer_before_bottom_options(lines_used, bottom_section_height):
+    _, rows = get_terminal_size()
+    blanks_needed = max(0, rows - lines_used - bottom_section_height)
+    
+    for _ in range(blanks_needed):
+        print()

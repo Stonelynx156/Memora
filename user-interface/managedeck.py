@@ -11,6 +11,7 @@ from deck import delete_deck, rename_deck, load_index, load_deck, save_deck
 from cards import Card, card_status, add_card, reset_due, human_date
 from console import (
     clear,
+    read_key,
     set_color,
     center_text,
     wait_for_enter,
@@ -144,6 +145,7 @@ def card_info(deck_name):
 
 #edit kartu
 def card_edit(deck_name):
+    prev_size = get_terminal_size()
     cards_raw = [Card.from_dict(c) for c in load_deck(deck_name)]
     set_color(BRIGHT | CYAN)
     print(center_text(f"=== Edit Kartu di: {deck_name} ==="))
@@ -162,88 +164,146 @@ def card_edit(deck_name):
         wait_for_enter(center_text("Tekan Enter untuk kembali..."))
         set_color(WHITE)
         return
-    print()
-    print("     " + "1) Edit Pertanyaan (front)")
-    print("     " + "2) Edit Jawaban (back)")
-    print("     " + "3) Hapus Kartu")
-    print("     " + "4) Reset Waktu Kartu")
-    print("     " + "5) Kembali")
-    print()
-    choice = input("Pilih opsi (1-5): ")
-    if choice == '1':
-        new_front   = input("Masukkan pertanyaan baru: ")
-        if not new_front.strip():
-            set_color(RED)
-            print()
-            print(center_text("Pertanyaan tidak boleh kosong!"))
-            set_color(BRIGHT | YELLOW)
-            wait_for_enter(center_text("Tekan Enter untuk kembali..."))
-            set_color(WHITE)
-            return
-        card.front = new_front
-        cards = [Card.to_dict(c)for c in cards_raw]
-        save_deck(deck_name, cards)
-        print(f"Pertanyaan telah diubah menjadi : {new_front}")
-        set_color(BRIGHT | YELLOW)
-        wait_for_enter(center_text("Tekan Enter untuk kembali..."))
-        set_color(WHITE)
-    elif choice == '2':
-        new_back    = input("Masukkan jawaban baru   : ")
-        if not new_back.strip():
-            set_color(RED)
-            print()
-            print(center_text("Jawaban tidak boleh kosong!"))
-            set_color(BRIGHT | YELLOW)
-            wait_for_enter(center_text("Tekan Enter untuk kembali..."))
-            set_color(WHITE)
-            return
-        card.back = new_back
-        cards = [Card.to_dict(c)for c in cards_raw]
-        save_deck(deck_name, cards)
-        print(f"Pertanyaan telah diubah menjadi : {new_front}")
-        set_color(BRIGHT | YELLOW)
-        wait_for_enter(center_text("Tekan Enter untuk kembali..."))
-        set_color(WHITE)
-    elif choice == '3':
-        confirm = input("Yakin hapus kartu ini? (y/n): ")
-        if confirm.lower() == 'y':
-            print()
-            set_color(RED)
-            print(center_text("Kartu telah dihapus."))
-            set_color(WHITE)
 
-        else:
-            print()
-            set_color(RED)
-            print(center_text("Operasi dibatalkan."))
-            set_color(WHITE)
-            set_color(BRIGHT | YELLOW)
-            wait_for_enter(center_text("Tekan Enter untuk kembali..."))
-            set_color(WHITE)
-            return
-    elif choice == '4':
-        card.due = datetime.now(timezone.utc).isoformat()
-        card.first_time = True
-        card.interval = 1
-        card.step = 1
-        card.ease_factor = 2.5
-        cards = [Card.to_dict(c)for c in cards_raw]
-        save_deck(deck_name, cards)
-        print("Waktu telah direset")
-        set_color(BRIGHT | YELLOW)
-        wait_for_enter(center_text("Tekan Enter untuk kembali..."))
+    opt_selected = 0
+    card_edit_options = [
+        "1) Edit Pertanyaan (front)",
+        "2. Edit Jawaban (back)",
+        "3) Reset Waktu Kartu",
+        "4) Hapus Kartu",    
+        "5) Kembali",
+    ]
+
+    while True:
+        clear()
+        set_color(BRIGHT | CYAN)
+        print(center_text(f"=== Edit Kartu di: {deck_name} ==="))
         set_color(WHITE)
-        return
-    elif choice == '5':
-        return
-    elif choice not in ['1','2','3','4','5']:
-        set_color(RED)
         print()
-        print(center_text("Opsi tidak valid!"))
-        set_color(BRIGHT | YELLOW)
-        wait_for_enter(center_text("Tekan Enter untuk kembali..."))
-        set_color(WHITE)
+        for idx, opt in enumerate(card_edit_options):
+            if idx == opt_selected:
+                set_color(BRIGHT | GREEN)
+                print(center_text(f"> {opt} <"))
+                set_color(WHITE)
+            else:
+                print(center_text(f"  {opt}"))
         
+        key, prev_size = wait_for_key_with_resize(prev_size)
+        if key == EXIT_TOKEN:
+            return
+        if key is None:
+            continue
+        if key == 'UP':
+            if opt_selected > 0:
+                opt_selected -= 1
+        elif key == 'DOWN':
+            if opt_selected < len(card_edit_options) - 1:
+                opt_selected += 1
+        elif key == 'ESC':
+            break
+        elif key == 'ENTER':
+            choice = opt_selected + 1
+            clear()
+            if choice == 1:
+                set_color(BRIGHT | CYAN)
+                print(center_text(f"=== Edit Kartu di: {deck_name} ==="))
+                set_color(WHITE)
+                print()
+                print("     Pertanyaan Lama: ")
+                #print pertanyaan lama kartu
+                print()
+                new_front = input("     Masukkan Pertanyaan Baru: ")
+                if not new_front.strip():
+                    set_color(RED)
+                    print()
+                    print(center_text("Pertanyaan tidak boleh kosong!"))
+                    set_color(BRIGHT | YELLOW)
+                    wait_for_enter(center_text("Tekan Enter untuk kembali..."))
+                    set_color(WHITE)
+                    return
+                card.front = new_front
+                cards = [Card.to_dict(c)for c in cards_raw]
+                save_deck(deck_name, cards)
+                print(f"     Pertanyaan telah diubah menjadi : {new_front}")
+                set_color(BRIGHT | YELLOW)
+                wait_for_enter(center_text("Tekan Enter untuk kembali..."))
+                set_color(WHITE)
+            elif choice == 2:
+                set_color(BRIGHT | CYAN)
+                print(center_text(f"=== Edit Kartu di: {deck_name} ==="))
+                set_color(WHITE)
+                print()
+                print("     Jawaban Lama: ")
+                #print Jawaban lama kartu
+                new_back    = input("     Masukkan jawaban baru   : ")
+                if not new_back.strip():
+                    set_color(RED)
+                    print()
+                    print(center_text("Jawaban tidak boleh kosong!"))
+                    set_color(BRIGHT | YELLOW)
+                    wait_for_enter(center_text("Tekan Enter untuk kembali..."))
+                    set_color(WHITE)
+                    return
+                card.back = new_back
+                cards = [Card.to_dict(c)for c in cards_raw]
+                save_deck(deck_name, cards)
+                print(f"     Pertanyaan telah diubah menjadi : {new_front}")
+                set_color(BRIGHT | YELLOW)
+                wait_for_enter(center_text("Tekan Enter untuk kembali..."))
+                set_color(WHITE)
+            elif choice == '3':
+                set_color(BRIGHT | CYAN)
+                print(center_text(f"=== Edit Kartu di: {deck_name} ==="))
+                set_color(WHITE)
+                print()
+                confirm = input("     Yakin reset waktu kartu ini? (y/n)")
+                if confirm.lower == 'y':
+                    card.due = datetime.now(timezone.utc).isoformat()
+                    card.first_time = True
+                    card.interval = 1
+                    card.step = 1
+                    card.ease_factor = 2.5
+                    cards = [Card.to_dict(c)for c in cards_raw]
+                    save_deck(deck_name, cards)
+                    print(center_text("Waktu telah direset"))
+                    set_color(BRIGHT | YELLOW)
+                    wait_for_enter(center_text("Tekan Enter untuk kembali..."))
+                    set_color(WHITE)
+                    return
+                else:
+                    print()
+                    set_color(RED)
+                    print(center_text("Operasi dibatalkan."))
+                    set_color(WHITE)
+                    set_color(BRIGHT | YELLOW)
+                    wait_for_enter(center_text("Tekan Enter untuk kembali..."))
+                    set_color(WHITE)
+                    return
+            
+            elif choice == '4':
+                set_color(BRIGHT | CYAN)
+                print(center_text(f"=== Edit Kartu di: {deck_name} ==="))
+                set_color(WHITE)
+                print()
+                confirm = input("     Yakin hapus kartu ini? (y/n): ")
+                if confirm.lower() == 'y':
+                    print()
+                    set_color(RED)
+                    print(center_text("Kartu telah dihapus."))
+                    set_color(WHITE)
+                else:
+                    print()
+                    set_color(RED)
+                    print(center_text("Operasi dibatalkan."))
+                    set_color(WHITE)
+                    set_color(BRIGHT | YELLOW)
+                    wait_for_enter(center_text("Tekan Enter untuk kembali..."))
+                    set_color(WHITE)
+                    return
+            elif choice == '5':
+                return
+
+
 #reset semua kartu
 def reset_times(deck_name):
     set_color(BRIGHT | CYAN)

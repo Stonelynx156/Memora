@@ -79,7 +79,7 @@ def new_cards(deck_name):
     print(center_text("Tekan ESC untuk kembali..."))
     set_color(WHITE)
     print()
-    front_cards, canceled = input_with_esc("Masukkan pertanyaan (front): ")
+    front_cards, canceled = input_with_esc("     Masukkan pertanyaan (front): ")
     if canceled:
         return
     if not front_cards.strip():
@@ -90,7 +90,7 @@ def new_cards(deck_name):
         wait_for_enter(center_text("Tekan Enter untuk kembali..."))
         set_color(WHITE)
         return
-    back_cards, canceled = input_with_esc("Masukkan jawaban (back)    : ")
+    back_cards, canceled = input_with_esc("     Masukkan jawaban (back)    : ")
     if canceled:
         return
     if not back_cards.strip():
@@ -102,6 +102,8 @@ def new_cards(deck_name):
         set_color(WHITE)
         return
     add_card(front_cards, back_cards, deck_name)
+    print()
+    print(center_text(f"Kartu baru telah ditambahkan di: {deck_name} "))
     print()
     set_color(BRIGHT | YELLOW)
     wait_for_enter(center_text("Tekan Enter untuk kembali..."))
@@ -501,8 +503,9 @@ def manage_deck(avail_decks):
         set_color(BRIGHT | MAGENTA)
         print(center_text("================================== Manajemen Deck =================================="))
         print()
-        set_color(BRIGHT | WHITE)
+        set_color(BRIGHT | YELLOW)
         print(center_text("ESC: Kembali | ↑/↓: Pilih | Enter: Kelola deck"))
+        set_color(WHITE)
         print()
 
         count = len(avail_decks)
@@ -568,8 +571,9 @@ def manage_deck(avail_decks):
                 set_color(BRIGHT | CYAN)
                 print(center_text(f"=== Kelola Deck: {deck_name} ==="))
                 print()
-                set_color(WHITE)
+                set_color(BRIGHT | YELLOW)
                 print(center_text("Gunakan ↑/↓ untuk pilih, Enter untuk konfirmasi, ESC untuk kembali"))
+                set_color(WHITE)
                 print()
 
                 #highlight ketika dipilih

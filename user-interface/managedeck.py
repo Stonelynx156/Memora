@@ -61,9 +61,19 @@ def deck_summary(deck_name):
     print("     " + f"Kartu baru         : {len([Card.from_dict(c) for c in deck if c.get("first_time") == True ])}")
     print("     " + f"kartu jatuh tempo  : {len([Card.from_dict(c) for c in deck if c.get("first_time") == False 
                                                  and datetime.fromisoformat(c.get("due")) <= datetime.now(timezone.utc)])}")
-    print("     " + f"Jadwal Terdekat    : {human_date(min([Card.from_dict(c).due for c in deck]))}")
-    print("     " + f"Interval Rata Rata : {sum([Card.from_dict(c).interval for c in deck]) / len([Card.from_dict(c) for c in deck])}")
-    print("     " + f"Interval Terbesar  : {max([Card.from_dict(c).interval for c in deck])}")
+    if min([Card.from_dict(c).due for c in deck], default=None) == None:
+        closest_date = None
+    else:
+        closest_date = human_date(min([Card.from_dict(c).due for c in deck], default=None))
+    print("     " + f"Jadwal Terdekat    : {closest_date}")
+    if max([Card.from_dict(c).interval for c in deck], default=None ) == None:
+        avg_interval = None
+        max_inteval = None
+    else: 
+        avg_interval = sum([Card.from_dict(c).interval for c in deck]) / len([Card.from_dict(c) for c in deck])
+        max_inteval = max([Card.from_dict(c).interval for c in deck])
+    print("     " + f"Interval Rata Rata : {avg_interval}")
+    print("     " + f"Interval Terbesar  : {max_inteval}")
     print()
     set_color(BRIGHT | YELLOW)
     wait_for_enter(center_text("Tekan Enter untuk kembali..."))

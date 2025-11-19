@@ -110,6 +110,7 @@ def card_queue(deck_name: str, new_limit: int = None, due_limit: int = None):
     cards_raw = load_deck(deck_name)
     cards = [Card.from_dict(c) for c in cards_raw]
     now = _now()
+    
     new_cards = []
     due_cards = []
 
@@ -124,10 +125,13 @@ def card_queue(deck_name: str, new_limit: int = None, due_limit: int = None):
             heapq.heappush(session_cards,(due_dt, next(counter), c))
 
     if new_limit is not None:
-        new_cards = new_cards[:new_limit]
+        if new_limit > 0:
+            new_cards = new_cards[:new_limit]
+        else: new_cards = due_cards[:0]
     if due_limit is not None:
-        due_cards = due_cards[:due_limit]
-
+        if due_limit > 0:
+            due_cards = due_cards[:due_limit]
+        else: due_cards = due_cards[:0]
     for due_dt, c in new_cards + due_cards:
         heapq.heappush(session_cards,(due_dt, next(counter), c))
 

@@ -170,6 +170,5 @@ MIT License
 
 ---
 
-# 👤 Author
-**anglerfish**  
-🔗 https://github.com/anglerfish
+# 👤 Author  
+🔗 https://github.com/Stonelynx156

@@ -7,8 +7,8 @@ import time
 from tkinter import Tk, filedialog
 
 from datetime import datetime, timezone
-from deck import delete_deck, rename_deck, load_index, load_deck, save_deck
-from cards import Card, add_card, reset_due, human_date
+from utils.deck import delete_deck, rename_deck, load_index, load_deck, save_deck
+from utils.cards import Card, add_card, reset_due, human_date
 from console import (
     clear,
     read_key,

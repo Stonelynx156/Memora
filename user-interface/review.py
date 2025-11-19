@@ -1,11 +1,11 @@
 import ctypes
-import deck
-import cards
+import utils.deck as deck
+import utils.cards as cards
 from datetime import datetime,timezone
 import heapq
 import itertools
-from deck import load_deck, save_deck, save_limit,load_limit
-from cards import card_queue, update_schedule, card_status
+from utils.deck import load_deck, save_deck, save_limit,load_limit
+from utils.cards import card_queue, update_schedule, card_status
 
 from console import (
     clear, 

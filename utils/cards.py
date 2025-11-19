@@ -2,7 +2,7 @@ import uuid
 from dataclasses import dataclass, asdict
 from datetime import datetime, timezone,timedelta
 from typing import Dict
-from deck import load_deck, save_deck
+from utils.deck import load_deck, save_deck
 import heapq
 import itertools
 

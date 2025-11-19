@@ -9,7 +9,7 @@ import managedeck
 import review
 import time
 
-from deck import load_index
+from utils.deck import load_index
 from console import (
     clear, 
     set_color,

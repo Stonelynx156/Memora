@@ -4,7 +4,7 @@ import msvcrt
 import shutil
 import time
 import sys
-from deck import load_index
+from utils.deck import load_index
 
 """Material & Needs"""
 #Import Warna

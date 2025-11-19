@@ -2,7 +2,7 @@ import os
 import ctypes
 import msvcrt
 import shutil
-from deck import create_deck, load_index
+from utils.deck import create_deck, load_index
 from console import (
     clear, 
     set_color,

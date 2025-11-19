@@ -3,9 +3,9 @@ import os
 import ctypes
 import json
 import shutil
-from deck import DATA_DIR, _ensure_index, load_index, save_index
+from utils.deck import DATA_DIR, _ensure_index, load_index, save_index
 from pathlib import Path
-from cards import reset_due
+from utils.cards import reset_due
 from tkinter import Tk, filedialog
 
 from console import (

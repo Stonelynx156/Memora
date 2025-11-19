@@ -8,7 +8,7 @@ from tkinter import Tk, filedialog
 
 from datetime import datetime, timezone
 from deck import delete_deck, rename_deck, load_index, load_deck, save_deck
-from cards import Card, card_status, add_card, reset_due, human_date
+from cards import Card, add_card, reset_due, human_date
 from console import (
     clear,
     read_key,
@@ -203,6 +203,10 @@ def card_edit(deck_name):
         clear()
         set_color(BRIGHT | CYAN)
         print(center_text(f"=== Edit Kartu di: {deck_name} ==="))
+        set_color(WHITE)
+        print()
+        set_color(BRIGHT | YELLOW)
+        print(center_text("Tekan ESC untuk kembali..."))
         set_color(WHITE)
         print()
         for idx, opt in enumerate(card_edit_options):

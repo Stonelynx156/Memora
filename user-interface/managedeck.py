@@ -566,7 +566,7 @@ def manage_deck(avail_decks):
             set_color(RED)
             confirm = input(center_text("Apakah kamu ingin membuka kumpulan deck online (y/n): "))
             if confirm == 'y':
-                url = "https://github.com/Stonelynx156/MemoRA/tree/shared-decks"
+                url = "https://github.com/Stonelynx156/MemoRA_shared-deck"
                 webbrowser.open(url)
                 set_color(WHITE)
         elif key == 'ENTER':
@@ -576,7 +576,7 @@ def manage_deck(avail_decks):
                 print(center_text("Tidak ada deck untuk dikelola"))
                 confirm = input(center_text("Apakah kamu ingin membuka kumpulan deck online (y/n): "))
                 if confirm == 'y':
-                    url = "https://github.com/Stonelynx156/MemoRA/tree/shared-decks"
+                    url = "https://github.com/Stonelynx156/MemoRA_shared-deck"
                     webbrowser.open(url)
                     set_color(WHITE)
                 return

@@ -14,7 +14,7 @@ dengan cara yang sangat efektif, user interface yang berbasis text sangat memban
 untuk tetap fokus. MemoRA, Asisten Pengingatmu!  
 
 Disclaimer:
-Aplikasi MemoRA hanya berjalan di platform Windows saja.
+Aplikasi MemoRA hanya berjalan di platform Windows saja.<br>
 Minimum Requirements : Terinstall Python 3.14 atau lebih tinggi.
 
 ---

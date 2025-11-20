@@ -7,8 +7,8 @@ import time
 from tkinter import Tk, filedialog
 
 from datetime import datetime, timezone
-from deck import delete_deck, rename_deck, load_index, load_deck, save_deck
-from cards import Card, add_card, reset_due, human_date
+from utils.deck import delete_deck, rename_deck, load_index, load_deck, save_deck
+from utils.cards import Card, add_card, reset_due, human_date
 from console import (
     clear,
     read_key,
@@ -61,9 +61,19 @@ def deck_summary(deck_name):
     print("     " + f"Kartu baru         : {len([Card.from_dict(c) for c in deck if c.get("first_time") == True ])}")
     print("     " + f"kartu jatuh tempo  : {len([Card.from_dict(c) for c in deck if c.get("first_time") == False 
                                                  and datetime.fromisoformat(c.get("due")) <= datetime.now(timezone.utc)])}")
-    print("     " + f"Jadwal Terdekat    : {human_date(min([Card.from_dict(c).due for c in deck]))}")
-    print("     " + f"Interval Rata Rata : {sum([Card.from_dict(c).interval for c in deck]) / len([Card.from_dict(c) for c in deck])}")
-    print("     " + f"Interval Terbesar  : {max([Card.from_dict(c).interval for c in deck])}")
+    if min([Card.from_dict(c).due for c in deck], default=None) == None:
+        closest_date = None
+    else:
+        closest_date = human_date(min([Card.from_dict(c).due for c in deck], default=None))
+    print("     " + f"Jadwal Terdekat    : {closest_date}")
+    if max([Card.from_dict(c).interval for c in deck], default=None ) == None:
+        avg_interval = None
+        max_inteval = None
+    else: 
+        avg_interval = sum([Card.from_dict(c).interval for c in deck]) / len([Card.from_dict(c) for c in deck])
+        max_inteval = max([Card.from_dict(c).interval for c in deck])
+    print("     " + f"Interval Rata Rata : {avg_interval}")
+    print("     " + f"Interval Terbesar  : {max_inteval}")
     print()
     set_color(BRIGHT | YELLOW)
     wait_for_enter(center_text("Tekan Enter untuk kembali..."))
@@ -79,7 +89,7 @@ def new_cards(deck_name):
     print(center_text("Tekan ESC untuk kembali..."))
     set_color(WHITE)
     print()
-    front_cards, canceled = input_with_esc("Masukkan pertanyaan (front): ")
+    front_cards, canceled = input_with_esc("     Masukkan pertanyaan (front): ")
     if canceled:
         return
     if not front_cards.strip():
@@ -90,7 +100,7 @@ def new_cards(deck_name):
         wait_for_enter(center_text("Tekan Enter untuk kembali..."))
         set_color(WHITE)
         return
-    back_cards, canceled = input_with_esc("Masukkan jawaban (back)    : ")
+    back_cards, canceled = input_with_esc("     Masukkan jawaban (back)    : ")
     if canceled:
         return
     if not back_cards.strip():
@@ -102,6 +112,8 @@ def new_cards(deck_name):
         set_color(WHITE)
         return
     add_card(front_cards, back_cards, deck_name)
+    print()
+    print(center_text(f"Kartu baru telah ditambahkan di: {deck_name} "))
     print()
     set_color(BRIGHT | YELLOW)
     wait_for_enter(center_text("Tekan Enter untuk kembali..."))
@@ -369,7 +381,7 @@ def change_name_deck(deck_name):
     print(center_text("Tekan ESC untuk kembali..."))
     set_color(WHITE)
     print()
-    new_name, canceled = input_with_esc("Masukkan nama deck baru: ")
+    new_name, canceled = input_with_esc("     Masukkan nama deck baru: ")
     if canceled:
         return
     if not new_name.strip():
@@ -501,8 +513,9 @@ def manage_deck(avail_decks):
         set_color(BRIGHT | MAGENTA)
         print(center_text("================================== Manajemen Deck =================================="))
         print()
-        set_color(BRIGHT | WHITE)
+        set_color(BRIGHT | YELLOW)
         print(center_text("ESC: Kembali | ↑/↓: Pilih | Enter: Kelola deck"))
+        set_color(WHITE)
         print()
 
         count = len(avail_decks)
@@ -568,8 +581,9 @@ def manage_deck(avail_decks):
                 set_color(BRIGHT | CYAN)
                 print(center_text(f"=== Kelola Deck: {deck_name} ==="))
                 print()
-                set_color(WHITE)
+                set_color(BRIGHT | YELLOW)
                 print(center_text("Gunakan ↑/↓ untuk pilih, Enter untuk konfirmasi, ESC untuk kembali"))
+                set_color(WHITE)
                 print()
 
                 #highlight ketika dipilih

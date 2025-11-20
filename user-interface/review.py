@@ -1,11 +1,11 @@
 import ctypes
-import deck
-import cards
+import utils.deck as deck
+import utils.cards as cards
 from datetime import datetime,timezone
 import heapq
 import itertools
-from deck import load_deck, save_deck, save_limit,load_limit
-from cards import card_queue, update_schedule, card_status
+from utils.deck import load_deck, save_deck, save_limit,load_limit
+from utils.cards import card_queue, update_schedule, card_status
 
 from console import (
     clear, 
@@ -151,6 +151,7 @@ def review_deck(deck_name, new, due):
         q = card.front
         a = card.back
         display_question(deck_name, q, status)
+        limit = load_limit(deck_name)
         show_answer = False
         while True:
             key, prev_size = wait_for_key_with_resize(prev_size)
@@ -191,12 +192,16 @@ def review_deck(deck_name, new, due):
                             heapq.heappush(queue, (due_dt,next(counter), card))
                             
                         elif card.step > 3:
-                            #reviewed +=1
-                            due = card.due
+                            if limit["due_limit"] and limit["due_limit"]> 0: 
+                                due = limit["due_limit"] - 1
+                            if limit["new_limit"] and limit["new_limit"]> 0 : 
+                                new = limit["new_limit"] - 1 
                         for idx, stored in enumerate(cards_raw):
                             if stored["id"] == card.id:
                                 cards_raw[idx] = card.to_dict()                        
                         save_deck(deck_name, cards_raw)
+                        load_limit(deck_name)
+                        save_limit(deck_name, new, due)
                         break
                         # Untuk sekarang, kembali ke pertanyaan atau lanjut ke kartu berikutnya
     queue = card_queue(deck_name)
@@ -207,6 +212,9 @@ def review_menu(deck_name, new, due):
     prev_size = get_terminal_size()
 
     while True:
+        limit = load_limit(deck_name)
+        new = limit["new_limit"]
+        due = limit["due_limit"]
         queue = card_queue(deck_name, new, due)
         clear()
         
@@ -261,8 +269,14 @@ def review_menu(deck_name, new, due):
             print()
             print(center_text("Kosongkan untuk default"))
             print()
-            new = get_limit(center_text("Masukkan Limit Kartu Baru: ")) 
-            due = get_limit(center_text("Masukkan Limit Kartu Jatuh Tempo: "))
+            new_limit = get_limit(center_text("Masukkan Limit Kartu Baru: ")) 
+            due_limit = get_limit(center_text("Masukkan Limit Kartu Jatuh Tempo: "))
+            if new_limit is int and new_limit >= 0:
+                new += new_limit
+            else: new = new_limit
+            if due_limit is int and new_limit >= 0:
+                due += due_limit    
+            else: due = due_limit
             save_limit(deck_name, new, due)
             return review_menu(deck_name, new, due)        
         elif key == 'ESC':

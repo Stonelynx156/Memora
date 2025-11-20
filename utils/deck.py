@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 from typing import Dict, List
+from datetime import datetime, timedelta, timezone
 import os
 
 DATA_DIR = Path(__file__).parent / "data"
@@ -8,18 +9,23 @@ DATA_DIR.mkdir(exist_ok=True)
 
 INDEX_FILE = DATA_DIR / "decks_index.json"
 
+#mengecek jika index ada, jika tidak membuat file index berupa json
 def _ensure_index():
     if not INDEX_FILE.exists():
         INDEX_FILE.write_text(json.dumps({"decks": []}, indent=2))
 
+#membaca index menjadi dict dari file json
 def load_index() -> Dict[str,List[str]]:
     _ensure_index()
     with INDEX_FILE.open("r", encoding="utf-8") as f:
         return json.load(f)
+
+#menyimpan perubahan pada index
 def save_index(index: Dict[str, List[str]]) -> None:
     with INDEX_FILE.open("w", encoding="utf-8") as f:
         json.dump(index, f, indent=2)
-    
+
+#membuat path
 def deck_file_path(name: str) -> Path:
     #removes whitespaces and turn to lowercase for filename
     safe = "".join(c if c.isalnum()else "_" for c in name)
@@ -54,24 +60,26 @@ def load_limit(deck: str):
     with deck_file_path(deck).open("r", encoding="utf-8") as f:
         data = json.load(f)
     if "limit" not in data:
-        data["limit"] = {"new_limit": 20, "due_limit":100}
+        data["limit"] = {"new_limit": 20, "due_limit":100, "init": [20, 100],"date":(datetime.now(timezone.utc)).isoformat()}
         with path.open("w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
     return data.get("limit",{})
 
-def save_limit(deck: str, limit_new: int, limit_due: int):
+def save_limit(deck: str, limit_new: int, limit_due: int, init: list, date: int = 1):
     path = deck_file_path(deck)
     with path.open("r", encoding="utf-8") as f:
         data = json.load(f)
-    data["limit"] = {"new_limit": limit_new,"due_limit": limit_due}
+    data["limit"] = {"new_limit": limit_new,"due_limit": limit_due, "init": init, "date": (datetime.now(timezone.utc) + timedelta(days=date)).isoformat()}
     with path.open("w", encoding="utf-8") as f:
         json.dump(data, f, indent = 2)
 
 def save_deck(name: str, cards: List[Dict]) -> None:
     _ensure_deck_file(name)
+    data = load_deck(name)
     path = deck_file_path(name)
+    data = {"cards": cards}
     with path.open("w", encoding="utf-8") as f:
-        json.dump({"cards": cards}, f, indent=2)
+        json.dump(data, f, indent=2)
 
 def delete_deck(name: str) -> None:
     _ensure_deck_file(name)

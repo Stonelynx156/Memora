@@ -373,6 +373,7 @@ def reset_times(deck_name):
 
 #ganti nama deck
 def change_name_deck(deck_name):
+    existing_decks = sorted(load_index().get("decks", []))
     set_color(BRIGHT | CYAN)
     print(center_text(f"=== Ganti Nama Deck: {deck_name} ==="))
     set_color(WHITE)
@@ -392,6 +393,15 @@ def change_name_deck(deck_name):
         wait_for_enter(center_text("Tekan Enter untuk kembali..."))
         set_color(WHITE)
         return
+    if deck_name in existing_decks:
+        set_color(BRIGHT | RED)
+        print()
+        print(center_text(f"Deck dengan nama '{new_name}' sudah ada!"))
+        print()
+        set_color(BRIGHT | YELLOW)
+        wait_for_enter(center_text("Tekan Enter untuk kembali ke menu..."))
+        set_color(WHITE)
+        return None
     rename_deck(deck_name, new_name)
     print()
     print(center_text(f"Nama deck telah diubah menjadi: {new_name}"))

@@ -394,7 +394,7 @@ def change_name_deck(deck_name):
         wait_for_enter(center_text("Tekan Enter untuk kembali..."))
         set_color(WHITE)
         return
-    if deck_name in existing_decks:
+    if new_name in existing_decks:
         set_color(BRIGHT | RED)
         print()
         print(center_text(f"Deck dengan nama '{new_name}' sudah ada!"))

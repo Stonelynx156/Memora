@@ -89,7 +89,7 @@ MemoRA hanya fokus pada:
 
 # 📦 Instalasi
 ```
-git clone https://github.com/Stonelynx156/festika/tree/main
+git clone https://github.com/Stonelynx156/MemoRA.git
 cd MemoRA
 ```
 

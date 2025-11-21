@@ -120,7 +120,7 @@ MemoRA/
 │   └── console.py
 │── data/
 │   └── decks.json
-│── main.py
+│── MemoRA.py
 │── README.md
 ```
 
